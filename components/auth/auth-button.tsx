@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useAuth } from "./auth-provider";
-import { LogIn, LogOut, User } from "lucide-react";
+import { CalendarDays, LogIn, LogOut, User } from "lucide-react";
 
 export function AuthButton() {
   const { user, loading, signInWithGoogle, signOut } = useAuth();
@@ -29,6 +30,13 @@ export function AuthButton() {
             {user.user_metadata?.full_name?.split(" ")[0] || "Account"}
           </span>
         </div>
+        <Link
+          href="/booking/my-bookings"
+          className="flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-sm text-cream/70 transition-colors hover:border-gold/30 hover:text-gold"
+        >
+          <CalendarDays className="h-4 w-4" />
+          <span className="hidden sm:inline">My bookings</span>
+        </Link>
         <button
           onClick={() => signOut()}
           className="flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-sm text-cream/70 transition-colors hover:border-gold/30 hover:text-gold"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BookingStepper } from "./booking-stepper";
 import { ServiceSelect } from "./service-select";
@@ -32,8 +32,28 @@ export function BookingFlow({ services, staff }: BookingFlowProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const saved = localStorage.getItem("pending_booking");
+    
+    if (saved) {
+      const { service, staff, date, timeSlot, step: savedStep } = JSON.parse(saved);
+      
+      // Fill the state variables back up
+      setSelectedService(service);
+      setSelectedStaff(staff);
+      setSelectedDate(date);
+      setSelectedTimeSlot(timeSlot);
+      setStep(savedStep); // Jump straight to the summary page
+  
+      // Optional: Clear it immediately or wait until handleConfirm succeeds
+      localStorage.removeItem("pending_booking");
+    }
+  }, []); // Runs once when the page loads
+
   const handleServiceSelect = (service: Service) => {
-    setSelectedService(service);
+    setSelectedService(service); // store user's selected service 
+
+    // if user change service, reset staff, date, and time slot
     if (selectedStaff) {
       const staffStillValid = selectedStaff.staff_services.some(
         (ss) => ss.service_id === service.id

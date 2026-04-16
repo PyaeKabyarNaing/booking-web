@@ -26,6 +26,22 @@ export function BookingSummary({
 }: BookingSummaryProps) {
   const { user, signInWithGoogle } = useAuth();
 
+  const handleLoginAndSave = () => {
+    const bookingData = {
+      service,
+      staff,
+      date,
+      timeSlot,
+      step: 3 // Save that we were on the summary step
+    };
+    
+    // Save to browser memory
+    localStorage.setItem("pending_booking", JSON.stringify(bookingData));
+    
+    // Now redirect to Google
+    signInWithGoogle("/booking"); 
+  };
+
   const formattedDate = new Date(date + "T00:00:00").toLocaleDateString(
     "en-US",
     {
@@ -132,7 +148,7 @@ export function BookingSummary({
           </button>
         ) : (
           <button
-            onClick={() => signInWithGoogle("/booking")}
+            onClick={handleLoginAndSave}
             className="flex items-center justify-center gap-2 rounded-full bg-gold px-8 py-3 text-sm font-semibold text-background transition-all hover:bg-gold-light hover:shadow-lg hover:shadow-gold/20"
           >
             <LogIn className="h-4 w-4" />

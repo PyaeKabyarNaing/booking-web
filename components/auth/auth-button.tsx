@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useAuth } from "./auth-provider";
-import { CalendarDays, LogIn, LogOut, User } from "lucide-react";
+import { CalendarDays, LogIn, LogOut, Settings, User } from "lucide-react";
 
 export function AuthButton() {
-  const { user, loading, signInWithGoogle, signOut } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
 
   if (loading) {
     return (
@@ -30,6 +30,15 @@ export function AuthButton() {
             {user.user_metadata?.full_name?.split(" ")[0] || "Account"}
           </span>
         </div>
+        {profile?.role === "admin" && (
+          <Link
+            href="/admin"
+            className="flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/10 px-3 py-1.5 text-sm text-gold transition-colors hover:bg-gold/20"
+          >
+            <Settings className="h-4 w-4" />
+            <span className="hidden sm:inline">Admin</span>
+          </Link>
+        )}
         <Link
           href="/booking/my-bookings"
           className="flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-sm text-cream/70 transition-colors hover:border-gold/30 hover:text-gold"
@@ -49,19 +58,12 @@ export function AuthButton() {
   }
 
   return (
-    // <button
-    //   onClick={() => signInOptions()}
-    //   className="flex items-center gap-2 rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-gold transition-colors hover:bg-gold/10"
-    // >
-    //   <LogIn className="h-4 w-4" />
-    //   Sign In
-    // </button>
-    <button
-      onClick={() => signInWithGoogle()}
+    <Link
+      href="/auth/login"
       className="flex items-center gap-2 rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-gold transition-colors hover:bg-gold/10"
     >
       <LogIn className="h-4 w-4" />
-      Sign In With Google
-    </button>
+      Sign In
+    </Link>
   );
 }

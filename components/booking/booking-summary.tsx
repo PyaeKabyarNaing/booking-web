@@ -24,7 +24,7 @@ export function BookingSummary({
   onConfirm,
   onBack,
 }: BookingSummaryProps) {
-  const { user, signInWithGoogle } = useAuth();
+  const { user } = useAuth();
 
   const handleLoginAndSave = () => {
     const bookingData = {
@@ -32,14 +32,10 @@ export function BookingSummary({
       staff,
       date,
       timeSlot,
-      step: 3 // Save that we were on the summary step
+      step: 3,
     };
-    
-    // Save to browser memory
     localStorage.setItem("pending_booking", JSON.stringify(bookingData));
-    
-    // Now redirect to Google
-    signInWithGoogle("/booking"); 
+    window.location.href = `/auth/login?next=${encodeURIComponent("/booking")}`;
   };
 
   const formattedDate = new Date(date + "T00:00:00").toLocaleDateString(

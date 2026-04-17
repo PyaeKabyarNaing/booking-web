@@ -155,28 +155,80 @@ Current state:
 Planned extension:
 - Integrate an email provider (options discussed earlier: Resend, SendGrid, or Supabase email workflows).
 
-## 11. Admin Site Extension Points (Future)
-Goal:
-- Add an admin SPA/route set later while keeping the customer DB model stable.
+## 11. Authentication (Shared)
+Location:
+- Login page: `app/auth/login/page.tsx` + `components/auth/login-form.tsx`
+- Signup page: `app/auth/signup/page.tsx` + `components/auth/signup-form.tsx`
+- Auth provider: `components/auth/auth-provider.tsx`
 
-Already built-in extension hooks:
-- `profiles.role` includes `admin`
-- RLS policies include an admin path
-- `lib/supabase/admin.ts` exists for service-role operations (server-only)
+Providers:
+- Email/password via `supabase.auth.signInWithPassword` / `supabase.auth.signUp`
+- Google OAuth via `supabase.auth.signInWithOAuth`
 
-Expected future admin routes:
-- Manage services (CRUD)
-- Manage staff (CRUD)
-- Manage staff schedules (weekly schedule)
-- View/manage bookings
-- Possibly manage booking status transitions
+Both customer and admin use the same login/signup pages.
+The `AuthProvider` fetches the user's `profiles` row (including `role`) and exposes it to all components.
 
-## 12. Change Log
+## 12. Admin Site
+Location: `app/admin/*`
+
+### Auth Guard
+- `app/admin/layout.tsx` is a server component that checks:
+  1. User is authenticated (redirects to `/auth/login?next=/admin` if not)
+  2. User's `profiles.role` is `admin` (redirects to `/` if not)
+
+### Admin Routes
+
+| Route | Purpose |
+|-------|---------|
+| `/admin` | Dashboard: today's bookings, stats (pending count, services count, staff count) |
+| `/admin/bookings` | All bookings list with search, status filter, and status change actions |
+| `/admin/services` | Services list with create/edit/delete |
+| `/admin/services/new` | Create new service |
+| `/admin/services/[id]/edit` | Edit existing service |
+| `/admin/staff` | Staff list with create/edit/delete + links to services and schedule |
+| `/admin/staff/new` | Create new staff member |
+| `/admin/staff/[id]/edit` | Edit existing staff member |
+| `/admin/staff/[id]/services` | Assign services to a staff member (checkbox UI) |
+| `/admin/staff/[id]/schedule` | Set weekly availability (7-day grid with start/end times) |
+
+### Admin API Routes
+
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/admin/services` | POST | Create service |
+| `/api/admin/services/[id]` | PATCH | Update service |
+| `/api/admin/services/[id]` | DELETE | Delete service |
+| `/api/admin/staff` | POST | Create staff |
+| `/api/admin/staff/[id]` | PATCH | Update staff |
+| `/api/admin/staff/[id]` | DELETE | Delete staff |
+| `/api/admin/staff/[id]/services` | PUT | Replace staff-service assignments |
+| `/api/admin/staff/[id]/schedule` | PUT | Replace staff weekly schedule |
+| `/api/admin/bookings/[id]` | PATCH | Update booking status |
+
+All admin API routes use `lib/admin/auth.ts` → `requireAdmin()` which:
+1. Verifies user is authenticated
+2. Verifies user has `admin` role via profiles table
+3. Returns a service-role Supabase client (`createAdminClient()`) for the operation
+
+### Booking Status Transitions
+- `pending` → `confirmed` or `cancelled`
+- `confirmed` → `completed` or `cancelled`
+- `cancelled` → (terminal)
+- `completed` → (terminal)
+
+### Admin Layout
+- Separate layout from customer side (no salon header/footer)
+- Light theme with sidebar navigation
+- Customer pages use `app/(customer)/layout.tsx` (route group) with salon Header/Footer
+- Root layout (`app/layout.tsx`) provides `AuthProvider` only
+
+## 13. Change Log
 Maintain a short entry per change:
-- `YYYY-MM-DD - <summary> - <links to files/PRs if any>`
+- `2026-04-16 - Added admin site with dashboard, bookings management, services CRUD, staff CRUD, staff-service assignments, staff schedule editor`
+- `2026-04-16 - Added email/password auth alongside Google OAuth for both customer and admin`
+- `2026-04-16 - Restructured layouts: customer pages under (customer) route group, admin under /admin`
 
-## 13. Open Questions / Decisions to Lock Later
-- Should we support booking cancellation/rescheduling and who can do it?
+## 14. Open Questions / Decisions to Lock Later
 - Booking conflict policy:
   - currently blocks overlap with pending/confirmed
   - clarify whether cancelled/completed bookings affect availability
@@ -185,4 +237,6 @@ Maintain a short entry per change:
   - confirm the desired granularity rules per service
 - Email delivery:
   - which provider and which events (created/confirmed/cancelled)?
+- Staff login:
+  - future: link staff table to auth.users so staff can view their own schedule/bookings
 

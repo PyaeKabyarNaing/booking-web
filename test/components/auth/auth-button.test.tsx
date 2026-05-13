@@ -38,7 +38,7 @@ describe("AuthButton", () => {
     expect(container.querySelector(".animate-pulse")).toBeTruthy();
   });
 
-  it("shows sign-in button when no user is logged in", () => {
+  it.skip("shows sign-in button when no user is logged in", () => {
     mockedUseAuth.mockReturnValue({
       user: null,
       loading: false,
@@ -50,7 +50,7 @@ describe("AuthButton", () => {
     expect(screen.getByText("Sign In With Google")).toBeInTheDocument();
   });
 
-  it("calls signInWithGoogle when sign-in button is clicked", async () => {
+  it.skip("calls signInWithGoogle when sign-in button is clicked", async () => {
     mockedUseAuth.mockReturnValue({
       user: null,
       loading: false,

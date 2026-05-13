@@ -99,9 +99,9 @@ export function ServicesPreview({ services }: ServicesPreviewProps) {
           {displayServices.map((service) => (
             <div
               key={service.id}
-              className="group rounded-2xl border border-white/5 bg-charcoal-light p-6 transition-all hover:border-gold/20 hover:shadow-lg hover:shadow-gold/5"
+              className="group rounded-2xl border bg-charcoal-light p-6 transition-all border-gold/20 shadow-md shadow-gold/5"
             >
-              <h3 className="font-serif text-xl font-semibold text-cream transition-colors group-hover:text-gold">
+              <h3 className="font-serif text-xl font-semibold transition-colors text-gold">
                 {service.name}
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-cream/50">
